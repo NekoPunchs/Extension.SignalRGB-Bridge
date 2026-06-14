@@ -167,11 +167,10 @@ export class SONIX_Device_Protocol {
 	writeRGBPackage(RGBData){
 
 		// start_refresh
-		ready_send();
+		this.ready_send();
 		
 		// send
-		for(var index = 0; index <= 6; index++)
-		{
+		for (let index = 0; index <= 6; index++) {
 			let packet = [0x00];
 			packet.push(...RGBData.splice(0, 64));
 			// device.log(packet, {toFile: true});
@@ -180,7 +179,7 @@ export class SONIX_Device_Protocol {
 		}
 
 		// refresh
-		refresh();
+		this.refresh();
 		
 		// Send data in fixed-size packets without creating sparse arrays
 		// for (let offset = 0; offset < RGBData.length; offset += 64) {
