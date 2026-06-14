@@ -114,20 +114,17 @@ export class SONIX_Device_Protocol {
 		for (let iIdx = 0; iIdx < deviceLeds.length; iIdx++) {
 			const iPxX = deviceLedPositions[iIdx][0];
 			const iPxY = deviceLedPositions[iIdx][1];
-			let color;
+			let color; // byte array [R, G, B]
 
-			if(overrideColor){
+			if (overrideColor) {
 				color = hexToRgb(overrideColor);
-			}else if (LightingMode === "Forced") {
+			} else if (LightingMode === "Forced") {
 				color = hexToRgb(forcedColor);
-			}else{
+			} else {
 				color = device.color(iPxX, iPxY);
 			}
 
-			RGBData[(deviceLeds[iIdx]*4)]   = deviceLeds[iIdx];
-			RGBData[(deviceLeds[iIdx]*4)+1] = color[0];
-			RGBData[(deviceLeds[iIdx]*4)+2] = color[1];
-			RGBData[(deviceLeds[iIdx]*4)+3] = color[2];
+			RGBData.push(deviceLeds[iIdx], 0xff, color[1], color[2]);
 		}
 
 		this.writeRGBPackage(RGBData);
@@ -139,9 +136,9 @@ export class SONIX_Device_Protocol {
 		device.send_report([0x00, 0x04, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08], 65);
 		device.get_report([0x00], 65);
 
-		// Send data
-		while(RGBData.length > 0) {
-			const packet = [0x00].concat(RGBData.splice(0, 64));
+		// Send data in fixed-size packets without creating sparse arrays
+		for (let offset = 0; offset < RGBData.length; offset += 64) {
+			const packet = [0x00].concat(RGBData.slice(offset, offset + 64));
 			device.send_report(packet, 65);
 			device.pause(2);
 		}
