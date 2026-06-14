@@ -19,7 +19,8 @@ export function ControllableParameters(){
 		{property:"shutdownColor", group:"lighting", label:"Shutdown Color", description: "This color is applied to the device when the System, or SignalRGB is shutting down", min:"0", max:"360", type:"color", default:"#000000"},
 		{property:"LightingMode", group:"lighting", label:"Lighting Mode", description: "Determines where the device's RGB comes from. Canvas will pull from the active Effect, while Forced will override it to a specific color", type:"combobox", values:["Canvas", "Forced"], default:"Canvas"},
 		{property:"forcedColor", group:"lighting", label:"Forced Color", description: "The color used when 'Forced' Lighting Mode is enabled", min:"0", max:"360", type:"color", default:"#009bde"},
-		{property:"forcedModel", group:"lighting", label:"Forced Model", description: "Forces a specific model when automatic detection fails", type:"combobox", values: Object.keys(SONIXdeviceLibrary.LEDLibrary), default: "None"}
+		{property:"forcedModel", group:"lighting", label:"Forced Model", description: "Forces a specific model when automatic detection fails", type:"combobox", values: Object.keys(SONIXdeviceLibrary.LEDLibrary), default: "None"},
+		{property:"delayMs", group:"lighting",label:"DelayMs", type:"combobox", values:[0,1, 2,3, 4,5, 6,7, 8,9, 10], default:"0"},
 	];
 }
 
@@ -130,23 +131,67 @@ export class SONIX_Device_Protocol {
 		this.writeRGBPackage(RGBData);
 	}
 
+	ready_send(){
+		let packet = new Array(65).fill(0);
+		packet[1] = 0x04;
+		packet[2] = 0x20; // 0x00, 0x04, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08
+		packet[9] = 0x08;
+		device.send_report(packet, 65);
+		console.log("Start Refresh");
+		device.pause(delayMs);
+
+		let data = new Array(65).fill(0);
+		device.get_report(data,65);
+		device.pause(delayMs);
+		device.send_report(data,1);
+	}
+
+	refresh(){
+		let packet = new Array(65).fill(0);
+		device.send_report(packet, 65);
+		device.pause(delayMs);
+		//-----------------------------
+		//从抓包看 是发了俩个空数据
+		device.send_report(packet, 65);
+		device.pause(delayMs);
+		//-----------------------------
+		packet[1] = 0x04;
+		packet[2] = 0x02;
+		device.send_report(packet, 65);
+		device.pause(delayMs);
+		let data = new Array(65).fill(0);
+		device.get_report(data,65);
+		device.pause(delayMs);
+	}
+
 	writeRGBPackage(RGBData){
 
-		// Pre-apply
-		device.send_report([0x00, 0x04, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08], 65);
-		device.get_report([0x00], 65);
-
-		// Send data in fixed-size packets without creating sparse arrays
-		for (let offset = 0; offset < RGBData.length; offset += 64) {
-			const packet = [0x00].concat(RGBData.slice(offset, offset + 64));
+		// start_refresh
+		ready_send();
+		
+		// send
+		for(var index = 0; index <= 6; index++)
+		{
+			let packet = [0x00];
+			packet.push(...RGBData.splice(0, 64));
+			// device.log(packet, {toFile: true});
 			device.send_report(packet, 65);
-			device.pause(2);
+			device.pause(delayMs);
 		}
 
+		// refresh
+		refresh();
+		
+		// Send data in fixed-size packets without creating sparse arrays
+		// for (let offset = 0; offset < RGBData.length; offset += 64) {
+		// 	const packet = [0x00].concat(RGBData.slice(offset, offset + 64));
+		// 	device.send_report(packet, 65);
+		// }
+
 		// Apply
-		device.send_report([0x00], 65);
-		device.send_report([0x00, 0x04, 0x02], 65);
-		device.get_report([0x00], 65);
+		// device.send_report([0x00], 65);
+		// device.send_report([0x00, 0x04, 0x02], 65);
+		// device.get_report([0x00], 65);
 	}
 
 	updateModel(modelID) {
