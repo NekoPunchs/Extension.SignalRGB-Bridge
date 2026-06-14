@@ -155,11 +155,10 @@ export class SONIX_Device_Protocol {
 
 		// start_refresh
 		this.ready_send();
-		
+
 		// send
-		for (let index = 0; index <= 6; index++) {
-			let packet = [0x00];
-			packet.push(...RGBData.splice(0, 64));
+		for (let offset = 0; offset < RGBData.length; offset += 64) {
+			const packet = [0x00].concat(RGBData.slice(offset, offset + 64));
 			device.send_report(packet, 65);
 			device.pause(delayMs);
 		}
