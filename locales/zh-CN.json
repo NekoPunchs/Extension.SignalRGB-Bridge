@@ -1,6 +1,0 @@
-{
-    "meta": {
-        "name": "SignalRGB 脚本驱动器 (beta)",
-        "description": "基于 QuickJS 实现的 SignalRGB 到 Skydimo 驱动兼容层，用于运行 SignalRGB 设备脚本。目前仍在测试中，部分设备可能会出现卡顿问题。"
-    }
-}

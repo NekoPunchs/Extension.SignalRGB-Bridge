@@ -1,6 +1,0 @@
-{
-    "meta": {
-        "name": "SignalRGB Script Driver (beta)",
-        "description": "A QuickJS-based compatibility driver for running SignalRGB device scripts in Skydimo. Still in testing, and some devices may experience stuttering."
-    }
-}
