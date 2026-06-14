@@ -281,7 +281,7 @@ export class deviceLibrary {
 				endpoint: [{ "interface": 3, "usage": 0x0001, "usage_page": 0xFF13, "collection": 0x0000 }]
 			},
 			"AULA F108Pro": {
-				name: "AULA F108 Pro",
+				name: "AULA F108 Pro NekoPunch",
 				image: "https://assets.signalrgb.com/devices/brands/aula/keyboards/f108-pro.png",
 				layout:	"Full",
 				endpoint: [{ "interface": 3, "usage": 0x0001, "usage_page": 0xFF13, "collection": 0x0000 }]
