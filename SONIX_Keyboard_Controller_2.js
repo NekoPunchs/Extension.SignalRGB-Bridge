@@ -133,31 +133,15 @@ export class SONIX_Device_Protocol {
 
 	ready_send(){
 		device.send_report([0x00, 0x04, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08], 65);
-		console.log("Start Refresh");
-		device.pause(delayMs);
-
-		let data = new Array(65).fill(0);
-		device.get_report(data,65);
-		device.pause(delayMs);
-		device.send_report(data,1);
+		device.get_report([0x00],65);
+		device.send_report([0x00],1);
 	}
 
 	refresh(){
-		let packet = new Array(65).fill(0);
-		device.send_report(packet, 65);
-		device.pause(delayMs);
-		//-----------------------------
-		//从抓包看 是发了俩个空数据
-		device.send_report(packet, 65);
-		device.pause(delayMs);
-		//-----------------------------
-		packet[1] = 0x04;
-		packet[2] = 0x02;
-		device.send_report(packet, 65);
-		device.pause(delayMs);
-		let data = new Array(65).fill(0);
-		device.get_report(data,65);
-		device.pause(delayMs);
+		device.send_report([0x00], 65);
+		device.send_report([0x00], 65);
+		device.send_report([0x00, 0x04, 0x02], 65);
+		device.get_report([0x00],65);
 	}
 
 	writeRGBPackage(RGBData){
@@ -169,24 +153,12 @@ export class SONIX_Device_Protocol {
 		for (let index = 0; index <= 6; index++) {
 			let packet = [0x00];
 			packet.push(...RGBData.splice(0, 64));
-			// device.log(packet, {toFile: true});
 			device.send_report(packet, 65);
 			device.pause(delayMs);
 		}
 
 		// refresh
 		this.refresh();
-		
-		// Send data in fixed-size packets without creating sparse arrays
-		// for (let offset = 0; offset < RGBData.length; offset += 64) {
-		// 	const packet = [0x00].concat(RGBData.slice(offset, offset + 64));
-		// 	device.send_report(packet, 65);
-		// }
-
-		// Apply
-		// device.send_report([0x00], 65);
-		// device.send_report([0x00, 0x04, 0x02], 65);
-		// device.get_report([0x00], 65);
 	}
 
 	updateModel(modelID) {
