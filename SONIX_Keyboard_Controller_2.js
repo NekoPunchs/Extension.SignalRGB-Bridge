@@ -125,18 +125,14 @@ export class SONIX_Device_Protocol {
 				color = device.color(iPxX, iPxY);
 			}
 
-			RGBData.push(deviceLeds[iIdx], 0xff, color[1], color[2]);
+			RGBData.push(deviceLeds[iIdx], color[0], color[1], color[2]);
 		}
 
 		this.writeRGBPackage(RGBData);
 	}
 
 	ready_send(){
-		let packet = new Array(65).fill(0);
-		packet[1] = 0x04;
-		packet[2] = 0x20; // 0x00, 0x04, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08
-		packet[9] = 0x08;
-		device.send_report(packet, 65);
+		device.send_report([0x00, 0x04, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08], 65);
 		console.log("Start Refresh");
 		device.pause(delayMs);
 
