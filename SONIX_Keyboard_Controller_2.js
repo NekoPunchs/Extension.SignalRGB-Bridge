@@ -137,22 +137,28 @@ export class SONIX_Device_Protocol {
 		packet[2] = 0x20; // 0x00, 0x04, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08
 		packet[9] = 0x08;
 		device.send_report(packet, 65);
+		device.pause(delayMs);
 
 		packet.fill(0);
 		device.get_report(packet,65);
-		device.send_report([0x00],1);
+		device.pause(delayMs);
+		device.send_report(packet,1);
 	}
 
 	refresh(){
 		let packet = new Array(65).fill(0);
 		device.send_report(packet, 65);
+		device.pause(delayMs);
 		device.send_report(packet, 65);
+		device.pause(delayMs);
 
 		packet[1] = 0x04; // [0x00, 0x04, 0x02]
 		packet[2] = 0x02;
 		device.send_report(packet, 65);
+		device.pause(delayMs);
 		packet.fill(0);
-		device.get_report([0x00],65);
+		device.get_report(packet,65);
+		device.pause(delayMs);
 	}
 
 	writeRGBPackage(RGBData){
